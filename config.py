@@ -1,2 +1,2 @@
 token = 'ваш токен'
-name_db = 'schedule_kpi'
+name_db = 'ваша бд'
