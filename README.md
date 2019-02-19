@@ -3,7 +3,7 @@ Bot schedule for students NTUU KPI.
 Uses api of [this](https://rozklad.org.ua) service.
 Python3.7 + Aiogram + MongoDB
 # Bot interface
-![](https://github.com/iantoshkai/ScheduleKPI_tgbot/blob/master/img/1.jpg) {:height="700px" width="400px"}
+![](https://github.com/iantoshkai/ScheduleKPI_tgbot/blob/master/img/1.jpg) {:height="300px" width="200px"}
 ![](https://github.com/iantoshkai/ScheduleKPI_tgbot/blob/master/img/2.jpg =250x) 
 ![](https://github.com/iantoshkai/ScheduleKPI_tgbot/blob/master/img/3.jpg =250x) 
 
