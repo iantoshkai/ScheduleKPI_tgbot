@@ -1,2 +1,2 @@
-token = '754101604:AAGAHOomfpm691yCN1eSk12_GlonQwVwFhw'
+token = 'ваш токен'
 name_db = 'schedule_kpi'
