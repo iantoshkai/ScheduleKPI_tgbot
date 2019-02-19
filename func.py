@@ -1,10 +1,11 @@
 from pymongo import MongoClient
 from datetime import datetime
-from schedule_kpi import config
+from ScheduleKPI_tgbot import config
 
 connect_db = MongoClient('localhost', 27017)
 #подключение к бд
 db_schedule = connect_db[config.name_db]
+
 def get_now_lesson_number():
     now_time = int(get_date_now().strftime('%H%M'))
     if now_time in range(830,1000):        #

@@ -4,11 +4,10 @@ from aiogram.utils import executor
 from aiogram.types import  ReplyKeyboardMarkup, KeyboardButton
 import logging
 from pymongo import MongoClient
-from schedule_kpi import config, func
+from ScheduleKPI_tgbot import config, func
 
 connect_db = MongoClient('localhost', 27017)
 db_schedule = connect_db[config.name_db]
-
 logging.basicConfig(level=logging.INFO)
 def create_main_markup():
     b1 = KeyboardButton('📜Розклад на сьогодні')
@@ -39,31 +38,51 @@ async def start(message: types.Message):
                                                                             reply_markup=create_main_markup())
 @dp.message_handler(regexp='📜Розклад на сьогодні')
 async def chose_group(message: types.Message):
-    group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
-    msg = func.today(group, func.day_number(), func.week_number())
-    await bot.send_message(message.chat.id,msg,parse_mode='HTML')
+    try:
+        group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
+        msg = func.today(group, func.day_number(), func.week_number())
+        await bot.send_message(message.chat.id,msg,parse_mode='HTML')
+    except:
+        msg = '<code>Спочатку виберіть свою групу</code>'
+        await bot.send_message(message.chat.id,msg,parse_mode='HTML')
 @dp.message_handler(regexp='Яка зараз пара❓')
 async def chose_group(message: types.Message):
-    group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
-    msg = func.get_now_lesson(group, func.day_number(), func.week_number())
-    await bot.send_message(message.chat.id,msg,parse_mode='HTML')
+    try:
+        group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
+        msg = func.get_now_lesson(group, func.day_number(), func.week_number())
+        await bot.send_message(message.chat.id,msg,parse_mode='HTML')
+    except:
+        msg = '<code>Спочатку виберіть свою групу</code>'
+        await bot.send_message(message.chat.id,msg,parse_mode='HTML')
 @dp.message_handler(regexp='📜Розклад на завтра')
 async def chose_group(message: types.Message):
-    group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
-    msg = func.tommorow(group, func.day_number(), func.week_number())
-    await bot.send_message(message.chat.id,msg,parse_mode='HTML')
+    try:
+        group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
+        msg = func.tommorow(group, func.day_number(), func.week_number())
+        await bot.send_message(message.chat.id,msg,parse_mode='HTML')
+    except:
+        msg = '<code>Спочатку виберіть свою групу</code>'
+        await bot.send_message(message.chat.id,msg,parse_mode='HTML')
 @dp.message_handler(regexp='📋Розклад на тиждень')
 async def chose_group(message: types.Message):
-    group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
-    msg = func.get_one_week(group, func.week_number())
-    await bot.send_message(message.chat.id,msg,parse_mode='HTML')
+    try:
+        group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
+        msg = func.get_one_week(group, func.week_number())
+        await bot.send_message(message.chat.id,msg,parse_mode='HTML')
+    except:
+        msg = '<code>Спочатку виберіть свою групу</code>'
+        await bot.send_message(message.chat.id,msg,parse_mode='HTML')
 @dp.message_handler(regexp='📚Повний розклад')
 async def chose_group(message: types.Message):
-    group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
-    week1 = func.get_one_week(group, 1)
-    week2 = func.get_one_week(group, 2)
-    msg = "<i>Тиждень 1</i>\n"+week1+"<i>Тиждень 2</i>\n"+week2
-    await bot.send_message(message.chat.id,msg,parse_mode='HTML')
+    try:
+        group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
+        week1 = func.get_one_week(group, 1)
+        week2 = func.get_one_week(group, 2)
+        msg = "<i>Тиждень 1</i>\n"+week1+"<i>Тиждень 2</i>\n"+week2
+        await bot.send_message(message.chat.id,msg,parse_mode='HTML')
+    except:
+        msg = '<code>Спочатку виберіть свою групу</code>'
+        await bot.send_message(message.chat.id,msg,parse_mode='HTML')
 @dp.message_handler(regexp='✏Вибрати групу')
 async def chose_group(message: types.Message):
 
