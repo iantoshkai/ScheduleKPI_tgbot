@@ -15,8 +15,9 @@ def create_main_markup():
     b2 = KeyboardButton('📜Розклад на завтра')
     b3 = KeyboardButton('📋Розклад на тиждень')
     b4 = KeyboardButton('📚Повний розклад')
-    b5 = KeyboardButton('✏Вибрати групу')
+    b5 = KeyboardButton('✏Вибрати/змінити групу')
     b7 = KeyboardButton("📞Зв'язок з розробником")
+
 
     main_markup = ReplyKeyboardMarkup(resize_keyboard=True).row(b1,b6,b2).row(b3,b4).add(b5).add(b7)
     return main_markup
@@ -33,11 +34,10 @@ async def start(message: types.Message):
     else:
         None
     await message.reply("Мої вітання, {}!👋🏻\n"
-                        "Це бот для зручного отримання розкладу😎\n"
-                        "Приємного користування😊".format(message.from_user.full_name),
-                                                                            reply_markup=create_main_markup())
+                        "Тисни 'Вибрати групу'👇🏻👇🏻👇🏻"
+                        .format(message.from_user.full_name),reply_markup=create_main_markup())
 @dp.message_handler(regexp='📜Розклад на сьогодні')
-async def chose_group(message: types.Message):
+async def today(message: types.Message):
     try:
         group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
         msg = func.today(group, func.day_number(), func.week_number())
@@ -46,7 +46,7 @@ async def chose_group(message: types.Message):
         msg = '<code>Спочатку виберіть свою групу</code>'
         await bot.send_message(message.chat.id,msg,parse_mode='HTML')
 @dp.message_handler(regexp='Яка зараз пара❓')
-async def chose_group(message: types.Message):
+async def now(message: types.Message):
     try:
         group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
         msg = func.get_now_lesson(group, func.day_number(), func.week_number())
@@ -55,16 +55,26 @@ async def chose_group(message: types.Message):
         msg = '<code>Спочатку виберіть свою групу</code>'
         await bot.send_message(message.chat.id,msg,parse_mode='HTML')
 @dp.message_handler(regexp='📜Розклад на завтра')
-async def chose_group(message: types.Message):
+async def tomorrow(message: types.Message):
     try:
         group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
-        msg = func.tommorow(group, func.day_number(), func.week_number())
+        day_number = func.day_number()
+        week_number = func.week_number()
+        if day_number == 7:
+            day_number = 1
+            if week_number == 1:
+                week_number = 2
+            else:
+                week_number = 1
+        else:
+            day_number = day_number+1
+        msg = func.today(group, day_number, week_number)
         await bot.send_message(message.chat.id,msg,parse_mode='HTML')
     except:
         msg = '<code>Спочатку виберіть свою групу</code>'
         await bot.send_message(message.chat.id,msg,parse_mode='HTML')
 @dp.message_handler(regexp='📋Розклад на тиждень')
-async def chose_group(message: types.Message):
+async def week(message: types.Message):
     try:
         group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
         msg = func.get_one_week(group, func.week_number())
@@ -73,7 +83,7 @@ async def chose_group(message: types.Message):
         msg = '<code>Спочатку виберіть свою групу</code>'
         await bot.send_message(message.chat.id,msg,parse_mode='HTML')
 @dp.message_handler(regexp='📚Повний розклад')
-async def chose_group(message: types.Message):
+async def all(message: types.Message):
     try:
         group = db_schedule.users.find_one({ "chat_id" : "{}".format(message.chat.id)})['group']
         week1 = func.get_one_week(group, 1)
@@ -83,26 +93,32 @@ async def chose_group(message: types.Message):
     except:
         msg = '<code>Спочатку виберіть свою групу</code>'
         await bot.send_message(message.chat.id,msg,parse_mode='HTML')
-@dp.message_handler(regexp='✏Вибрати групу')
+@dp.message_handler(regexp='✏Вибрати/змінити групу')
 async def chose_group(message: types.Message):
-
-    await message.reply("Щоб я запам'ятав твою групу\n"
-                        "пиши: /set номер_групи\n"
-                        "Приклад: <code>/set iк-52</code>",parse_mode='HTML')
+    await message.reply("Пиши: /set номер_групи\n"
+                        "Приклад: /set ік-52")
 @dp.message_handler(commands=['set'])
 async def set_group(message: types.Message):
 
     try:
-        _, group = message.text.split(' ')
+        _, group = message.text.lower().split(' ')
         groups = db_schedule.groups.find_one({ "group_full_name" : "{}".format(group)})['group_id']
         user = db_schedule.users
         user.update_one({'chat_id':'{}'.format(message.chat.id)},{"$set":{'group':'{}'.format(groups)}})
-        await message.reply("Все круто, запам'ятав:)")
+        msg = "Готово!\nПриємного користування:)"
+        db_schedule.set_log.insert_one({'mesage':'{}'.format(message.text),
+                          'answer':'True',
+                          'username':'{}'.format(message.from_user.username)})
+        await message.reply(msg,reply_markup=create_main_markup())
     except:
-        await message.reply("❌Упс, група не існує❌")
+        msg = "Упс, група не існує❌"
+        db_schedule.set_log.insert_one({'mesage':'{}'.format(message.text),
+                          'answer':'False',
+                          'username':'{}'.format(message.from_user.username)})
+        await message.reply(msg,reply_markup=create_main_markup())
 @dp.message_handler(regexp="📞Зв'язок з розробником")
-async def chose_group(message: types.Message):
-    msg = "Знайшов баги/помилки в боті?\nТобі сюди: @kpigeek"
+async def contacts(message: types.Message):
+    msg = "Знайшов баги/помилки в боті?\nТобі сюди: @geek_ua"
     await bot.send_message(message.chat.id,msg,parse_mode='HTML')
 if __name__ == '__main__':
     executor.start_polling(dp)

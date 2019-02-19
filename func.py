@@ -55,35 +55,6 @@ def today(group,day_number,lesson_week):
     except IndexError:
         send_schedule += 'Немає пар, відпочивай😎'
         return send_schedule
-def tommorow(group,day_number,lesson_week):
-    if day_number == 7:
-        day_number = 1
-    else:
-        day_number = day_number+1
-    collection = db_schedule['{}'.format(group)]
-    schedule = collection.find({'day_number': '{}'.format(day_number),
-                                'lesson_week': '{}'.format(lesson_week)})
-    send_schedule = ''
-    try:
-        day_name = schedule[0]['day_name']
-        send_schedule = '<b>{}</b>\n'.format(day_name)
-        for lesson in schedule:
-            lesson_number = lesson['lesson_number']
-            lesson_name = lesson['lesson_name']
-            lesson_room = lesson['lesson_room']
-            lesson_type = lesson['lesson_type']
-            teacher_name = lesson['teacher_name']
-            teacher_url = lesson['teachers'][0]['teacher_url']
-            send_schedule +='{}. {}\n<pre>{} {} </pre>\n<a href="{}">{}</a>\n'.format(lesson_number,
-                                                                                     lesson_name,
-                                                                                     lesson_room,
-                                                                                     lesson_type,
-                                                                                     teacher_url,
-                                                                                     teacher_name)
-        return send_schedule
-    except IndexError:
-        send_schedule += 'Немає пар, відпочивай😎'
-        return send_schedule
 def get_one_week(group,lesson_week):
     collection = db_schedule['{}'.format(group)]
     send_schedule = ''
