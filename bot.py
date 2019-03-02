@@ -4,14 +4,17 @@ from aiogram.utils import executor
 from aiogram.types import  ReplyKeyboardMarkup, KeyboardButton
 import logging
 from pymongo import MongoClient
-from ScheduleKPI_tgbot import config, func
+from ScheduleKPI_tgbot import config,func
 
 
 connect_db = MongoClient('localhost', 27017)
 db_schedule = connect_db[config.name_db]
 logging.basicConfig(level=logging.INFO)
 
-
+def start_markup():
+    b1 = KeyboardButton('✏Вибрати групу')
+    start_markup = ReplyKeyboardMarkup(resize_keyboard=True).add(b1)
+    return start_markup
 def create_main_markup():
     b1 = KeyboardButton('📜Розклад на сьогодні')
     b2 = KeyboardButton('Яка зараз пара❓')
@@ -19,7 +22,7 @@ def create_main_markup():
     b4 = KeyboardButton('📋Поточний тиждень')
     b5 = KeyboardButton('📚Повний розклад')
     b6 = KeyboardButton('📋Наступний тиждень')
-    b7 = KeyboardButton('✏Вибрати/змінити групу')
+    b7 = KeyboardButton('✏Змінити групу')
     b8 = KeyboardButton("📞Зв'язок з розробником")
 
 
@@ -41,7 +44,7 @@ async def start(message: types.Message):
 
     await message.reply("Мої вітання, {}!👋🏻\n"
                         "Тисни 'Вибрати групу'👇🏻👇🏻👇🏻"
-                        .format(message.from_user.full_name),reply_markup=create_main_markup())
+                        .format(message.from_user.full_name),reply_markup=start_markup())
 @dp.message_handler(regexp='📜Розклад на сьогодні')
 async def today(message: types.Message):
     statistics = db_schedule.statistics
@@ -138,7 +141,7 @@ async def week(message: types.Message):
     except:
         msg = '<code>Спочатку виберіть свою групу</code>'
         await bot.send_message(message.chat.id,msg,parse_mode='HTML',reply_markup=create_main_markup())
-@dp.message_handler(regexp='✏Вибрати/змінити групу')
+@dp.message_handler(lambda message: message.text == '✏Вибрати групу' or message.text == '✏Змінити групу')
 async def chose_group(message: types.Message):
     await message.reply("Пиши: /set номер_групи\n"
                         "Приклад: /set ік-52")
